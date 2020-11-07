@@ -25,7 +25,7 @@ def main():
         while True:
             
             try:
-                pos_x=func_timeout(10, get_position, args = (player1, ))
+                pos_x=func_timeout(30, get_position, args = (player1, ))
                 player2.sendall(pos_x)
             
             except FunctionTimedOut:
@@ -34,7 +34,7 @@ def main():
                 break
             
             try:
-                pos_o=func_timeout(10, get_position, args = (player2, ))
+                pos_o=func_timeout(30, get_position, args = (player2, ))
                 player1.sendall(pos_o)
             
             except FunctionTimedOut:

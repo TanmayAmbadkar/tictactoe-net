@@ -105,7 +105,7 @@ class GameGen():
         if (self.board[0][2] == self.board[1][1] == self.board[2][0]) and (self.board[0][2] is not None): 
               
             # game won diagonally right to left 
-            self.winner = board[0][2] 
+            self.winner = self.board[0][2] 
             pg.draw.line (self.screen, (250, 70, 70), (350, 50), (50, 350), 4) 
        
         if(all([all(row) for row in self.board]) and self.winner is None ): 
@@ -153,7 +153,7 @@ class GameGen():
             self.current_player = 'x'
         pg.display.update() 
    
-    def user_click(self): 
+    def user_click(self, counter): 
         x, y = pg.mouse.get_pos() 
         
         if(x < self.width / 3): 
@@ -183,7 +183,7 @@ class GameGen():
         if(row and col and self.board[row-1][col-1] is None): 
             self.drawXO(row, col) 
             
-            self.s.sendall(f"{row} {col}".encode("utf-8"))
+            self.s.sendall(f"{row} {col} {counter}".encode("utf-8"))
             self.check_win()
             
             
@@ -218,64 +218,88 @@ class GameGen():
         self.initialize() 
         pos = None
         status = True
-        clock = pg.time.Clock()
 
-        counter, text = 10, '10'.rjust(3)
+        counter, text = 30,'30'
         pg.time.set_timer(pg.USEREVENT, 1000)
+        
         while(status):
-            for event in pg.event.get(): 
-            
-                if event.type == QUIT: 
+            for event in pg.event.get():
+                
+                
+                if event.type == pg.QUIT: 
                     pg.quit() 
                     sys.exit()
                 
-                elif self.player_no == '2':
+                if self.player_no == '2':
                     if pos is None:
                         
                         pos = self.s.recv(1024).decode("utf-8")
                         print(pos)
                         try:
-                            row, col = int(pos.split()[0]), int(pos.split()[1])
+                            row, col, counter_new = int(pos.split()[0]), int(pos.split()[1]), int(pos.split()[2])
                             self.drawXO(row, col) 
                             self.check_win()
+                            counter = 60 - counter_new
+                            text = str(counter)
                         except:
                             status = False
                             self.draw_timeout()
-                    
-                    
+
                     elif event.type is MOUSEBUTTONDOWN:
-                        self.user_click()
+                        self.user_click(counter)
                         pos = None
                 
                 
-                elif event.type is MOUSEBUTTONDOWN and self.player_no == '1' and self.current_player == 'x':
+                if event.type is MOUSEBUTTONDOWN and self.player_no == '1' and self.current_player == 'x':
                 
-                    self.user_click()
+                    self.user_click(counter)
+                    
                     if(self.winner or self.draw):
         
                         time.sleep(5)
                         pg.quit() 
                         sys.exit()
+                        
                     pos = self.s.recv(1024).decode("utf-8")
                     print(pos)
                     try:
-                        row, col = int(pos.split()[0]), int(pos.split()[1])
+                        row, col, counter_new = int(pos.split()[0]), int(pos.split()[1]), int(pos.split()[2])
                         self.drawXO(row, col) 
                         self.check_win()
+                        counter =  60 - counter_new
+                        text = str(counter)
                     except:
                         status = False
                         self.draw_timeout()
                         time.sleep(5)
-            
+                
+                if event.type == pg.USEREVENT:
+                    
+                    if self.player_no == '1' and self.current_player == 'x':
+                        counter -= 1
+                        text = str(counter) if counter > 0 else 'boom!'
+                        print(counter)
+                        
+                    elif self.player_no == '2' and self.current_player == 'o':
+                        counter -= 1
+                        text = str(counter) if counter > 0 else 'boom!'
+                        print(counter)
+                    
+                    else:
+                        
+                        counter+=1
+                        
                         
                 if self.winner or self.draw:
                 
                     time.sleep(5)
                     pg.quit() 
                     sys.exit()  
-                        
-            pg.display.update()
-            self.CLOCK.tick(self.fps) 
+            
+            else:
+                
+                pg.display.set_caption(f"Tic Tac Toe: Player {self.player_no} time remaining: {text}") 
+                self.CLOCK.tick(self.fps) 
   
     def connect(self):
         
