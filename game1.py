@@ -199,7 +199,8 @@ class GameGen():
         self.board = [[None]*3, [None]*3, [None]*3]
     
     def draw_timeout(self):
-    
+        
+        message = None
         if self.player_no == 1:
             message = f"2 has timed out!"
         
@@ -211,7 +212,8 @@ class GameGen():
         self.screen.fill ((0, 0, 0), (0, 400, 500, 100)) 
         text_rect = text.get_rect(center =(self.width / 2, 500-50)) 
         self.screen.blit(text, text_rect) 
-        pg.display.update() 
+        
+        pg.display.update()
     
     def draw_timedout(self):
     
@@ -268,8 +270,11 @@ class GameGen():
                             counter = 60 - counter_new
                             text = str(counter)
                         except:
+                            print("Error 2")
                             status = False
                             self.draw_timeout()
+                            
+                            time.sleep(5)        
                             pg.quit() 
                             sys.exit()
 
@@ -298,6 +303,7 @@ class GameGen():
                         text = str(counter)
                     
                     except:
+                        print("Error 1")
                         status = False
                         self.draw_timeout()
                         time.sleep(5)
