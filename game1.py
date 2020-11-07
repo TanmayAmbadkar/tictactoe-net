@@ -54,6 +54,7 @@ class GameGen():
         pg.draw.line(self.screen, self.line_color, (0, self.height / 3 * 2), (self.width, self.height / 3 * 2), 7)
         
         self.draw_status()
+        #self.s.sendall(f"Player {self.player_no} ready!".encode("utf-8"))
     
     def draw_status(self):
         
@@ -211,6 +212,20 @@ class GameGen():
         text_rect = text.get_rect(center =(self.width / 2, 500-50)) 
         self.screen.blit(text, text_rect) 
         pg.display.update() 
+    
+    def draw_timedout(self):
+    
+        message = f"You have timed out!"
+        
+        
+        font = pg.font.Font('mont.otf', 30) 
+        text = font.render(message, 1, (255, 255, 255)) 
+        self.screen.fill ((0, 0, 0), (0, 400, 500, 100)) 
+        text_rect = text.get_rect(center =(self.width / 2, 500-50)) 
+        self.screen.blit(text, text_rect) 
+        pg.display.update()
+        
+        time.sleep(5)
         
         
     def start(self):
@@ -225,6 +240,17 @@ class GameGen():
         while(status):
             for event in pg.event.get():
                 
+                if counter == 0:
+                    self.draw_timedout()
+                    time.sleep(5)
+                    pg.quit() 
+                    sys.exit()
+                    
+                
+                if counter > 30:
+                    counter-=1
+                    text = '30'
+                    break
                 
                 if event.type == pg.QUIT: 
                     pg.quit() 
@@ -244,6 +270,8 @@ class GameGen():
                         except:
                             status = False
                             self.draw_timeout()
+                            pg.quit() 
+                            sys.exit()
 
                     elif event.type is MOUSEBUTTONDOWN:
                         self.user_click(counter)
@@ -268,22 +296,25 @@ class GameGen():
                         self.check_win()
                         counter =  60 - counter_new
                         text = str(counter)
+                    
                     except:
                         status = False
                         self.draw_timeout()
                         time.sleep(5)
+                        pg.quit() 
+                        sys.exit()
                 
                 if event.type == pg.USEREVENT:
                     
                     if self.player_no == '1' and self.current_player == 'x':
                         counter -= 1
                         text = str(counter) if counter > 0 else 'boom!'
-                        print(counter)
+                        #print(counter)
                         
                     elif self.player_no == '2' and self.current_player == 'o':
                         counter -= 1
                         text = str(counter) if counter > 0 else 'boom!'
-                        print(counter)
+                        #print(counter)
                     
                     else:
                         

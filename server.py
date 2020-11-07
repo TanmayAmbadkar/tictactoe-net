@@ -22,10 +22,12 @@ def main():
         player2.sendall("2".encode("utf-8"))
         print('Player 2 connected by address', address2)
         
+        pos_x = 30
+        pos_o = '0 0 30'.encode("utf-8")
         while True:
-            
+                
             try:
-                pos_x=func_timeout(30, get_position, args = (player1, ))
+                pos_x=func_timeout(60 - int(pos_o.decode("utf-8").split()[2]), get_position, args = (player1, ))
                 player2.sendall(pos_x)
             
             except FunctionTimedOut:
@@ -34,7 +36,7 @@ def main():
                 break
             
             try:
-                pos_o=func_timeout(30, get_position, args = (player2, ))
+                pos_o=func_timeout(60 - int(pos_x.decode("utf-8").split()[2]), get_position, args = (player2, ))
                 player1.sendall(pos_o)
             
             except FunctionTimedOut:
